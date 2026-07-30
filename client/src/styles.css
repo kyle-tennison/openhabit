@@ -1,0 +1,472 @@
+:root {
+  --paper: #f3f6f1;
+  --paper-2: #fbfdfa;
+  --ink: #26332a;
+  --ink-soft: #6e7d70;
+  --line: #d7e2d6;
+  --accent: #4f7d55;
+  --accent-soft: #a8c7ac;
+  --danger: #a1503f;
+
+  --font: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.logo {
+  display: block;
+  flex: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Flexbox centres the tile on the wordmark's line box, which lands on the cap
+   height. The descender in "OpenHabit" pulls the text's visual mass lower, so
+   the tile reads high — nudge it to sit between cap-centre and ink-centre. */
+.brand .logo {
+  position: relative;
+  top: 0.7px;
+}
+
+.wordmark {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.booting {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------- buttons -------------------------------- */
+
+.primary {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+.primary:hover:not(:disabled) {
+  background: #3f6644;
+}
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+}
+.link:hover {
+  color: var(--accent);
+}
+
+.ghost {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  width: 2rem;
+  height: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ghost:hover:not(:disabled) {
+  border-color: var(--accent-soft);
+}
+.ghost:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------------------------------- auth ---------------------------------- */
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: min(24rem, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 2.25rem 2rem;
+}
+
+.auth-tagline {
+  margin: -0.5rem 0 0.75rem;
+  color: var(--ink-soft);
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.auth-card input {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.7rem;
+}
+.auth-card input:focus {
+  outline: none;
+  border-color: var(--accent-soft);
+}
+
+.auth-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.donate-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+  margin-top: 0.3rem;
+}
+.donate-small:hover {
+  color: var(--accent);
+}
+
+/* ---------------------------------- shell --------------------------------- */
+
+.app {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.app-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.range {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.range-label {
+  font-size: 1.05rem;
+  min-width: 12rem;
+}
+
+.notice {
+  background: #f6e7e2;
+  border: 1px solid #e6cabf;
+  color: var(--danger);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.panel {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.count,
+.hint {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+/* ---------------------------------- grid ---------------------------------- */
+
+.grid-scroll {
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.grid {
+  min-width: 46rem;
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: 12rem repeat(var(--days), 1fr);
+  gap: 3px;
+  align-items: center;
+}
+.grid-row + .grid-row {
+  margin-top: 3px;
+}
+
+.cell-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.62rem;
+  color: var(--ink-soft);
+  line-height: 1.15;
+  padding-bottom: 0.35rem;
+}
+.cell-head .daynum {
+  font-size: 0.72rem;
+}
+.cell-head.is-today {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cell-name {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.5rem;
+  min-width: 0;
+}
+
+.habit-name {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.92rem;
+}
+.habit-name:hover {
+  border-color: var(--line);
+}
+.habit-name:focus {
+  outline: none;
+  background: var(--paper);
+  border-color: var(--accent-soft);
+}
+
+.delete {
+  background: none;
+  border: none;
+  color: var(--line);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+.grid-row:hover .delete {
+  color: var(--ink-soft);
+}
+.delete:hover {
+  color: var(--danger);
+}
+
+.cell {
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.cell.is-weekend {
+  background: #e9efe7;
+}
+.cell:hover:not(:disabled) {
+  border-color: var(--accent-soft);
+}
+.cell.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.cell.is-today {
+  border-color: var(--accent-soft);
+}
+.cell:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.empty {
+  color: var(--ink-soft);
+  padding: 1.25rem 0.25rem;
+  margin: 0;
+}
+
+.add-habit {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.add-habit input {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.7rem;
+}
+.add-habit input:focus {
+  outline: none;
+  border-color: var(--accent-soft);
+}
+
+/* ---------------------------------- mood ---------------------------------- */
+
+.mood-chart {
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.grid-line {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.today-band {
+  fill: var(--accent);
+  opacity: 0.06;
+}
+
+.axis-label {
+  fill: var(--ink-soft);
+  font-family: var(--font);
+  font-size: 11px;
+}
+.axis-label.day {
+  font-size: 9px;
+}
+.axis-label.is-today {
+  fill: var(--accent);
+  font-weight: 600;
+}
+
+.mood-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mood-point {
+  fill: var(--accent);
+  stroke: var(--paper-2);
+  stroke-width: 2;
+}
+.mood-point.is-today {
+  fill: #fffdf9;
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.mood-point.is-dragging {
+  fill: var(--danger);
+  stroke: var(--paper-2);
+}
+
+/* --------------------------------- footer --------------------------------- */
+
+.app-foot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.app-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.paypal-icon {
+  flex: none;
+  vertical-align: -2px;
+}
