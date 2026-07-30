@@ -1,30 +1,17 @@
-# OpenHabit
+<p align="center">
+  <img src="client/public/logo.png" width="72" alt="">
+</p>
 
-A simple habit and mood tracker. React frontend, thin Node BFF, MongoDB Atlas.
+<h1 align="center">OpenHabit</h1>
 
-## Layout
+Habit and mood tracking. React + Vite frontend, thin Express BFF, MongoDB Atlas.
+Live at [openhabit.co](https://openhabit.co).
 
-```
-openhabit/
-├── server/          Express BFF — holds the Mongo connection and secrets
-│   ├── .env         MONGODB_URI, JWT_SECRET (gitignored)
-│   └── src/
-│       ├── env.js   loads .env relative to the server dir
-│       ├── db.js    Atlas client + index setup
-│       ├── auth.js  JWT sign/verify middleware
-│       └── index.js routes
-└── client/          React + Vite. Never talks to Mongo directly.
-    └── src/
-        ├── App.jsx        state, the 30-day window, optimistic updates
-        ├── Auth.jsx       email + password sign in / register
-        ├── HabitGrid.jsx  habits × 30 days, click a cell to toggle
-        ├── MoodChart.jsx  interactive SVG line chart
-        └── dates.js       local-time "YYYY-MM-DD" helpers
-```
+Open source, free, and ad-free — no trackers, no upsells, nothing sold on. Hosting
+is paid for by [donations](https://www.paypal.com/donate/?business=54HEQEQEAT2M8&no_recurring=0&item_name=Help+pay+for+OpenHabit+hosting+to+keep+it+free+and+witout+ads.&currency_code=USD).
+Everything needed to self-host is in this repo.
 
 ## Running it
-
-Two terminals:
 
 ```bash
 npm start --prefix server
@@ -34,94 +21,76 @@ npm start --prefix server
 npm run dev --prefix client
 ```
 
-Then open http://localhost:5173. Vite proxies `/api` to the BFF on port 4000, so
-the browser never sees the Mongo connection string.
+Open http://localhost:5173. Vite proxies `/api` to the BFF on :4000, so the browser
+never sees the Mongo connection string. Config goes in `server/.env` — see
+`server/.env.example`.
+
+## Layout
+
+```
+server/     Express BFF. Owns the Mongo connection and secrets.
+  src/      env.js, db.js, auth.js (JWT), index.js (routes)
+client/     React + Vite. Never talks to Mongo directly.
+  src/      App.jsx, Auth.jsx, HabitGrid.jsx, MoodChart.jsx, dates.js
+```
 
 ## How it works
 
-**Auth** — email + password. Passwords are bcrypt-hashed; the client gets a JWT
-(30 day expiry) kept in `localStorage`. Every `/api` route except register/login
-requires `Authorization: Bearer <token>`, and every query is scoped to the
-token's user id.
+- **Auth** — email + password, bcrypt-hashed. Client holds a 30-day JWT in
+  `localStorage`; every route but register/login requires it, and every query is
+  scoped to the token's user id.
+- **Habits** — up to 100. A 30-day grid, one row per habit. Click a cell to toggle,
+  the name to rename, `×` to delete. `‹` `›` page back through earlier windows.
+- **Mood** — 1–10 over the same 30 days. Click to set, drag to adjust, shift-click to
+  clear. The line breaks across unrated days instead of interpolating.
 
-**Habits** — up to 100 per user. The grid shows a 30-day window; each habit is a
-row, each day a column. Clicking a cell toggles it. Click a habit's name to
-rename it, `×` to delete it (which also deletes its history). Future days are
-disabled. Use `‹` / `›` to page through earlier windows.
-
-**Mood** — an SVG chart over the same 30 days, rated 1–10. Click anywhere to set
-a day's rating, drag to adjust it, shift-click to clear it. Today's point is
-hollow and its column is shaded. The line breaks across unrated days rather than
-interpolating.
-
-All writes are optimistic and roll back with a message if the server rejects them.
+Writes are optimistic and roll back if the server rejects them. Dates are stored as
+local-time `YYYY-MM-DD` strings so a day never shifts across a timezone.
 
 ## Data model
 
-| Collection | Shape | Indexes |
+| Collection | Fields | Unique index |
 |---|---|---|
-| `users` | `email`, `passwordHash`, `createdAt` | unique on `email` |
-| `habits` | `userId`, `name`, `order`, `createdAt` | `userId + order` |
-| `checks` | `userId`, `habitId`, `date` | unique on `userId + habitId + date` |
-| `moods` | `userId`, `date`, `value`, `updatedAt` | unique on `userId + date` |
-
-Dates are stored as local-time `YYYY-MM-DD` strings, so a day never shifts
-because of a timezone conversion.
+| `users` | `email`, `passwordHash` | `email` |
+| `habits` | `userId`, `name`, `order` | — |
+| `checks` | `userId`, `habitId`, `date` | `userId + habitId + date` |
+| `moods` | `userId`, `date`, `value` | `userId + date` |
 
 ## API
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/api/auth/register` | create an account, returns a token |
-| POST | `/api/auth/login` | returns a token |
-| GET | `/api/auth/me` | validate the current token |
-| GET | `/api/habits` | list habits in display order |
-| POST | `/api/habits` | add a habit (max 100) |
-| PATCH | `/api/habits/:id` | rename |
-| DELETE | `/api/habits/:id` | delete habit + its checks |
-| GET | `/api/checks?start=&end=` | checks in a date range |
-| POST | `/api/checks/toggle` | toggle one habit/day cell |
-| GET | `/api/moods?start=&end=` | moods in a date range |
-| PUT | `/api/moods` | set a day's mood (1–10, upsert) |
-| DELETE | `/api/moods/:date` | clear a day's mood |
+| Method | Path |
+|---|---|
+| POST | `/api/auth/register`, `/api/auth/login` |
+| GET | `/api/auth/me` |
+| GET POST | `/api/habits` |
+| PATCH DELETE | `/api/habits/:id` |
+| GET | `/api/checks?start=&end=` |
+| POST | `/api/checks/toggle` |
+| GET PUT | `/api/moods` |
+| DELETE | `/api/moods/:date` |
 
 ## Deploying
-
-Live at **https://openhabit.co**, on the Lightsail box (`lightsail` in `~/.ssh/config`,
-52.37.243.198). To ship a change:
 
 ```bash
 ./deploy.sh
 ```
 
-That builds the SPA locally, rsyncs it plus the server source, installs production
-deps, and restarts the service. The build runs locally on purpose — the box has
-~190 MB of RAM free and a Vite build there would likely OOM.
+Builds the SPA locally, rsyncs it and the server source to the host, installs
+production deps, restarts the service. The build stays local on purpose — the box
+has ~190 MB RAM free and Vite would OOM there.
 
-### How it's wired
+On the host: nginx serves the SPA from `/webdirectory/openhabit/` with
+`try_files $uri /index.html`, and proxies `/api/` to `openhabit.service` on
+`127.0.0.1:8124`. TLS from `certbot --nginx`, behind Cloudflare.
 
-| Piece | Location |
-|---|---|
-| SPA | `/webdirectory/openhabit/`, served by nginx |
-| BFF | `openhabit.service` → Node on `127.0.0.1:8124` |
-| nginx vhost | `/etc/nginx/sites-available/openhabit.conf` (copy in `~/nginx-openhabit.conf`) |
-| systemd unit | `/etc/systemd/system/openhabit.service` (copy in `~/openhabit.service`) |
-| Secrets | `~/openhabit/server/.env`, mode 600, never rsynced |
+Notes:
 
-nginx serves the static SPA with `try_files $uri /index.html` for client-side routes
-and proxies `/api/` to the BFF. TLS via `certbot --nginx`; the domain sits behind
-Cloudflare, which proxies to this origin.
-
-**Node version:** `/usr/bin/node` on the box is v12 and cannot run this. The unit
-uses the nvm build at `/home/ubuntu/.nvm/versions/node/v20.13.1/bin/node`, and
-`deploy.sh` puts that directory on `PATH` before calling npm — npm's shebang is
-`#!/usr/bin/env node`, so an absolute path to npm alone isn't enough.
-
-### Gotchas
-
-- `server/.env` is gitignored; the production copy lives only on the box. `JWT_SECRET`
-  there was generated with `openssl rand -hex 32` — changing it signs everyone out.
-- Atlas Network Access must include the server's IP (`52.37.243.198/32`). Without it
-  the service starts, fails the handshake with `tlsv1 alert internal error` (alert 80),
-  and systemd restart-loops every ~34s. That error means the allowlist, not the code.
-- Logs: `journalctl -u openhabit -f`, plus `/var/log/nginx/openhabit_{access,error}.log`.
+- `/usr/bin/node` there is v12 and can't run this. The unit uses nvm's v20 by absolute
+  path, and `deploy.sh` puts it on `PATH` before calling npm — npm's shebang is
+  `#!/usr/bin/env node`, so pointing at npm alone isn't enough.
+- Atlas Network Access must include the server IP. Without it the service starts, fails
+  with `tlsv1 alert internal error` (alert 80), and restart-loops. That error means the
+  allowlist, not the code.
+- Secrets live only in `~/openhabit/server/.env` (mode 600, never rsynced). Changing
+  `JWT_SECRET` signs everyone out.
+- Logs: `journalctl -u openhabit -f`, `/var/log/nginx/openhabit_{access,error}.log`.
