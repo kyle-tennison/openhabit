@@ -167,19 +167,25 @@ input {
   font-size: 0.9rem;
 }
 
-.donate-small {
+.auth-links {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  color: var(--ink-soft);
-  text-decoration: none;
+  gap: 1.25rem;
   border-top: 1px solid var(--line);
   padding-top: 0.9rem;
   margin-top: 0.3rem;
 }
-.donate-small:hover {
+
+.auth-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.auth-links a:hover {
   color: var(--accent);
 }
 
@@ -451,7 +457,8 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
   margin-top: 2.5rem;
   color: var(--ink-soft);
   font-size: 0.85rem;
@@ -466,7 +473,8 @@ input {
   text-underline-offset: 3px;
 }
 
-.paypal-icon {
+.paypal-icon,
+.gh-icon {
   flex: none;
   vertical-align: -2px;
 }

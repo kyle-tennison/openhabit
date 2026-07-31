@@ -5,12 +5,15 @@ import bcrypt from "bcryptjs";
 import { ObjectId } from "mongodb";
 import { connect, getDb } from "./db.js";
 import { signToken, requireAuth } from "./auth.js";
+import { loginIpLimit, loginEmailLimit, registerLimit } from "./rateLimit.js";
 
 const MAX_HABITS = 100;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const isProduction = process.env.NODE_ENV === "production";
 
 const app = express();
+// Behind nginx (and Cloudflare), so req.ip should come from X-Forwarded-For.
+app.set("trust proxy", true);
 // In production nginx serves the SPA and the API from the same origin, so CORS
 // is unnecessary. In dev the Vite server is a different origin, so allow it.
 if (!isProduction) app.use(cors());
@@ -24,6 +27,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 app.post(
   "/api/auth/register",
+  registerLimit,
   wrap(async (req, res) => {
     const email = String(req.body.email || "")
       .trim()
@@ -51,6 +55,8 @@ app.post(
 
 app.post(
   "/api/auth/login",
+  loginIpLimit,
+  loginEmailLimit,
   wrap(async (req, res) => {
     const email = String(req.body.email || "")
       .trim()

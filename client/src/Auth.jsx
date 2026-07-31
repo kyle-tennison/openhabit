@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { api, setToken } from "./api.js";
-import { DONATE_URL } from "./Footer.jsx";
+import { DONATE_URL, GITHUB_URL, SUPPORT_EMAIL } from "./Footer.jsx";
 import PayPalIcon from "./PayPalIcon.jsx";
+import GitHubIcon from "./GitHubIcon.jsx";
 import Logo from "./Logo.jsx";
 
 export default function Auth({ onSignedIn }) {
@@ -77,10 +78,17 @@ export default function Auth({ onSignedIn }) {
           {isRegister ? "I already have an account" : "Create an account"}
         </button>
 
-        <a className="donate-small" href={DONATE_URL} target="_blank" rel="noopener noreferrer">
-          <PayPalIcon size={14} />
-          Support hosting
-        </a>
+        <div className="auth-links">
+          <a href={DONATE_URL} target="_blank" rel="noopener noreferrer">
+            <PayPalIcon size={14} />
+            Support hosting
+          </a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <GitHubIcon size={14} />
+            GitHub
+          </a>
+          <a href={`mailto:${SUPPORT_EMAIL}?subject=OpenHabit%20issue`}>Contact</a>
+        </div>
       </form>
     </div>
   );

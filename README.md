@@ -11,6 +11,8 @@ Open source, free, and ad-free — no trackers, no upsells, nothing sold on. Hos
 is paid for by [donations](https://www.paypal.com/donate/?business=54HEQEQEAT2M8&no_recurring=0&item_name=Help+pay+for+OpenHabit+hosting+to+keep+it+free+and+witout+ads.&currency_code=USD).
 Everything needed to self-host is in this repo.
 
+Issues and bug reports: [support@openhabit.co](mailto:support@openhabit.co).
+
 ## Running it
 
 ```bash
