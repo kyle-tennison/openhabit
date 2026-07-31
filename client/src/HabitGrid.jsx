@@ -11,6 +11,7 @@ export default function HabitGrid({
   onDelete,
 }) {
   const [draft, setDraft] = useState("");
+  const [adding, setAdding] = useState(false);
   const atLimit = habits.length >= maxHabits;
 
   function submitNew(e) {
@@ -18,6 +19,7 @@ export default function HabitGrid({
     const name = draft.trim();
     if (!name || atLimit) return;
     setDraft("");
+    setAdding(false);
     onAdd(name);
   }
 
@@ -93,18 +95,37 @@ export default function HabitGrid({
         </div>
       </div>
 
-      <form className="add-habit" onSubmit={submitNew}>
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={atLimit ? `Limit of ${maxHabits} habits reached` : "Add a habit…"}
-          maxLength={80}
+      {adding ? (
+        <form className="add-habit" onSubmit={submitNew}>
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={atLimit ? `Limit of ${maxHabits} habits reached` : "Add a habit…"}
+            maxLength={80}
+            disabled={atLimit}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setDraft("");
+                setAdding(false);
+              }
+            }}
+          />
+          <button className="primary" type="submit" disabled={atLimit || !draft.trim()}>
+            Add
+          </button>
+        </form>
+      ) : (
+        <button
+          type="button"
+          className="add-toggle"
+          aria-label="Add a habit"
           disabled={atLimit}
-        />
-        <button className="primary" type="submit" disabled={atLimit || !draft.trim()}>
-          Add
+          onClick={() => setAdding(true)}
+        >
+          <i className="bi bi-plus" aria-hidden="true"></i>
         </button>
-      </form>
+      )}
     </section>
   );
 }
