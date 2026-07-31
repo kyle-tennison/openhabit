@@ -1,14 +1,29 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, getToken, clearToken } from "./api.js";
-import { addDays, monthLabel, todayKey, windowDays } from "./dates.js";
+import { addDays, rangeLabel, todayKey, windowDays } from "./dates.js";
 import Auth from "./Auth.jsx";
 import HabitGrid from "./HabitGrid.jsx";
 import MoodChart from "./MoodChart.jsx";
 import Footer from "./Footer.jsx";
 import Logo from "./Logo.jsx";
 
-const WINDOW = 30;
 const MAX_HABITS = 100;
+const MOBILE = "(max-width: 640px)";
+
+// A month of columns doesn't fit on a phone, so show a week there instead.
+// Paging steps by whatever the current window is.
+function useWindowLength() {
+  const [length, setLength] = useState(() => (window.matchMedia(MOBILE).matches ? 7 : 30));
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE);
+    const sync = () => setLength(mq.matches ? 7 : 30);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return length;
+}
 
 export default function App() {
   const [email, setEmail] = useState(null);
@@ -20,7 +35,8 @@ export default function App() {
   const [moods, setMoods] = useState(new Map());
   const [notice, setNotice] = useState("");
 
-  const days = useMemo(() => windowDays(endKey, WINDOW), [endKey]);
+  const WINDOW = useWindowLength();
+  const days = useMemo(() => windowDays(endKey, WINDOW), [endKey, WINDOW]);
   const startKey = days[0].key;
 
   const signOut = useCallback(() => {
@@ -169,7 +185,7 @@ export default function App() {
         <button className="ghost" onClick={() => setEndKey(addDays(endKey, -WINDOW))}>
           ‹
         </button>
-        <span className="range-label">{monthLabel(days)}</span>
+        <span className="range-label">{rangeLabel(days)}</span>
         <button
           className="ghost"
           onClick={() => {

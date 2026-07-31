@@ -1,11 +1,14 @@
 :root {
-  --paper: #f3f6f1;
+  /* Everything is derived from the base green, hue ~114°. */
+  --accent: #386533;
+  --accent-dark: #2c5028;
+  --accent-soft: #a3c49e;
+  --paper: #f2f6f0;
   --paper-2: #fbfdfa;
-  --ink: #26332a;
-  --ink-soft: #6e7d70;
-  --line: #d7e2d6;
-  --accent: #4f7d55;
-  --accent-soft: #a8c7ac;
+  --ink: #212e1f;
+  --ink-soft: #697866;
+  --line: #d8e2d6;
+  --weekend: #e8eee6;
   --danger: #a1503f;
 
   --font: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -79,7 +82,7 @@ input {
   transition: background 0.15s ease;
 }
 .primary:hover:not(:disabled) {
-  background: #3f6644;
+  background: var(--accent-dark);
 }
 .primary:disabled {
   opacity: 0.45;
@@ -321,6 +324,14 @@ input {
   gap: 0.25rem;
   padding-right: 0.5rem;
   min-width: 0;
+  /* Pinned so the habit stays identifiable while the days scroll under it.
+     Stretch to the full row height, or the taller day headers show through
+     above and below the pinned cell as it scrolls past. */
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  align-self: stretch;
+  background: var(--paper-2);
 }
 
 .habit-name {
@@ -367,7 +378,7 @@ input {
   transition: background 0.12s ease, border-color 0.12s ease;
 }
 .cell.is-weekend {
-  background: #e9efe7;
+  background: var(--weekend);
 }
 .cell:hover:not(:disabled) {
   border-color: var(--accent-soft);
@@ -410,12 +421,40 @@ input {
 
 /* ---------------------------------- mood ---------------------------------- */
 
+.mood-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.erase {
+  flex: none;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.erase:hover {
+  border-color: var(--accent-soft);
+}
+.erase.on {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
 .mood-chart {
   width: 100%;
   height: auto;
   touch-action: none;
   cursor: crosshair;
   user-select: none;
+}
+.mood-chart.erasing {
+  cursor: not-allowed;
 }
 
 .grid-line {
@@ -444,7 +483,7 @@ input {
 .mood-line {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 2;
+  stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -452,7 +491,7 @@ input {
 .mood-point {
   fill: var(--accent);
   stroke: var(--paper-2);
-  stroke-width: 2;
+  stroke-width: 2.5;
 }
 .mood-point.is-today {
   fill: #fffdf9;
@@ -486,8 +525,136 @@ input {
   text-underline-offset: 3px;
 }
 
-.paypal-icon,
-.gh-icon {
+.auth-links .bi,
+.app-foot .bi {
   flex: none;
-  vertical-align: -2px;
+  font-size: 1em;
+  line-height: 1;
+}
+
+/* -------------------------------- mobile --------------------------------- */
+
+@media (max-width: 640px) {
+  body {
+    font-size: 15px;
+  }
+
+  .app {
+    padding: 1.25rem 0.85rem 2rem;
+  }
+
+  .panel {
+    padding: 0.9rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .app-head {
+    align-items: center;
+  }
+
+  .who {
+    font-size: 0.82rem;
+  }
+
+  /* Let the label take the space it needs instead of reserving a fixed block. */
+  .range-label {
+    min-width: 0;
+    font-size: 1rem;
+  }
+
+  /* Only a week is shown here, so the grid fits without horizontal scrolling. */
+  .grid {
+    min-width: 0;
+  }
+
+  .grid-row {
+    grid-template-columns: 6.5rem repeat(var(--days), 1fr);
+    gap: 2px;
+  }
+  .grid-row + .grid-row {
+    margin-top: 2px;
+  }
+
+  .habit-name {
+    font-size: 0.82rem;
+    padding: 0.2rem 0.25rem;
+  }
+
+  .cell {
+    border-radius: 4px;
+  }
+
+  /* There's no hover on touch, so the delete control has to be visible. */
+  .delete {
+    color: var(--ink-soft);
+  }
+
+  .cell-head {
+    font-size: 0.55rem;
+  }
+  .cell-head .daynum {
+    font-size: 0.62rem;
+  }
+
+  /* Drop the wordy hint but keep the Erase button — it's the only way to clear
+     a mood point without a shift key. */
+  .panel-head .hint {
+    display: none;
+  }
+
+  .grid-row {
+    gap: 3px;
+  }
+
+  .cell-head {
+    font-size: 0.7rem;
+  }
+  .cell-head .daynum {
+    font-size: 0.8rem;
+  }
+
+  /* The chart keeps its 960x280 viewBox, so at phone width it renders ~110px
+     tall and the labels shrink with it. Scale the type up in user units so it
+     stays legible instead of forcing a height, which only letterboxes. */
+  .axis-label {
+    font-size: 24px;
+  }
+  .axis-label.day {
+    font-size: 20px;
+  }
+
+  /* The viewBox scales down to about 0.4x here, so marks need to be drawn
+     larger in user units to come out the same weight on screen. */
+  .mood-line {
+    stroke-width: 7;
+  }
+  .mood-point {
+    r: 13;
+    stroke-width: 4;
+  }
+  .mood-point.is-today {
+    r: 15;
+    stroke-width: 5;
+  }
+
+  .auth-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  /* iOS Safari zooms the page in on any focused field smaller than 16px. The
+     rest of the mobile type scale is smaller than that, so pin the inputs at
+     16px rather than capping maximum-scale, which would block pinch-zoom. */
+  .auth-card input,
+  .add-habit input,
+  .habit-name {
+    font-size: 16px;
+  }
+
+  .auth-links {
+    gap: 0.9rem;
+  }
+
+  .app-foot {
+    font-size: 0.8rem;
+  }
 }

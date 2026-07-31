@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { api, setToken } from "./api.js";
 import { DONATE_URL, GITHUB_URL, SUPPORT_EMAIL } from "./Footer.jsx";
-import PayPalIcon from "./PayPalIcon.jsx";
-import GitHubIcon from "./GitHubIcon.jsx";
 import Logo from "./Logo.jsx";
 
 // A reset link lands on /reset?token=… — the token decides which form to show.
@@ -151,11 +149,11 @@ export default function Auth({ onSignedIn }) {
 
         <div className="auth-links">
           <a href={DONATE_URL} target="_blank" rel="noopener noreferrer">
-            <PayPalIcon size={14} />
+            <i className="bi bi-paypal" aria-hidden="true"></i>
             Support hosting
           </a>
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-            <GitHubIcon size={14} />
+            <i className="bi bi-github" aria-hidden="true"></i>
             GitHub
           </a>
           <a href={`mailto:${SUPPORT_EMAIL}?subject=OpenHabit%20issue`}>Contact</a>

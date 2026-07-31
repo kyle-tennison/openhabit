@@ -39,6 +39,21 @@ export function windowDays(endKey, length = 30) {
   return days;
 }
 
+// Short windows read better as an explicit date range than as a month name.
+export function rangeLabel(days) {
+  if (days.length > 14) return monthLabel(days);
+
+  const first = days[0].date;
+  const last = days[days.length - 1].date;
+  const full = { month: "short", day: "numeric" };
+  const sameMonth = first.getMonth() === last.getMonth();
+
+  return (
+    `${first.toLocaleDateString(undefined, full)} – ` +
+    `${last.toLocaleDateString(undefined, sameMonth ? { day: "numeric" } : full)}`
+  );
+}
+
 export function monthLabel(days) {
   const first = days[0].date;
   const last = days[days.length - 1].date;

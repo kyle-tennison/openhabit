@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 
 const VB_W = 960;
-const VB_H = 280;
-const PAD = { top: 20, right: 16, bottom: 34, left: 34 };
+const VB_H = 400;
+const PAD = { top: 24, right: 18, bottom: 44, left: 38 };
 const MIN = 1;
 const MAX = 10;
 
@@ -12,6 +12,9 @@ const plotH = VB_H - PAD.top - PAD.bottom;
 export default function MoodChart({ days, moods, onSet, onClear }) {
   const svgRef = useRef(null);
   const [dragging, setDragging] = useState(null); // { key, value }
+  // Shift-click clears a day, but there's no shift on a touch screen — so an
+  // explicit mode makes clearing reachable there.
+  const [erasing, setErasing] = useState(false);
 
   const colW = plotW / days.length;
   const x = (i) => PAD.left + (i + 0.5) * colW;
@@ -48,7 +51,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
     const { day, value } = locate(event);
     if (day.isFuture) return;
 
-    if (event.shiftKey) {
+    if (erasing || event.shiftKey) {
       if (moods.has(day.key)) onClear(day.key);
       return;
     }
@@ -73,12 +76,24 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
     <section className="panel">
       <header className="panel-head">
         <h2>Mood</h2>
-        <span className="hint">Click or drag to rate a day · shift-click to clear</span>
+        <div className="mood-tools">
+          <span className="hint">
+            {erasing ? "Tap a day to clear it" : "Click or drag to rate a day · shift-click to clear"}
+          </span>
+          <button
+            type="button"
+            className={`erase${erasing ? " on" : ""}`}
+            aria-pressed={erasing}
+            onClick={() => setErasing((on) => !on)}
+          >
+            {erasing ? "Done" : "Erase"}
+          </button>
+        </div>
       </header>
 
       <svg
         ref={svgRef}
-        className="mood-chart"
+        className={`mood-chart${erasing ? " erasing" : ""}`}
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         role="img"
         aria-label="Mood over the last 30 days"
@@ -131,7 +146,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
             }`}
             cx={x(p.i)}
             cy={y(p.value)}
-            r={p.isToday ? 7 : 5.5}
+            r={p.isToday ? 9 : 7.5}
           />
         ))}
 

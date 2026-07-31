@@ -30,6 +30,10 @@ app.use(express.json());
 
 const wrap = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
+// ObjectId throws on anything malformed, which would surface as a 500. Callers
+// treat null as "no such record" and answer 400/404 instead.
+const toObjectId = (value) => (ObjectId.isValid(value) ? new ObjectId(value) : null);
+
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 /* ---------------------------------- auth ---------------------------------- */
@@ -214,12 +218,12 @@ app.patch(
     const name = String(req.body.name || "").trim();
     if (!name) return res.status(400).json({ error: "Give the habit a name" });
 
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(404).json({ error: "Habit not found" });
+
     const result = await getDb()
       .collection("habits")
-      .updateOne(
-        { _id: new ObjectId(req.params.id), userId: req.userId },
-        { $set: { name } }
-      );
+      .updateOne({ _id, userId: req.userId }, { $set: { name } });
 
     if (!result.matchedCount) return res.status(404).json({ error: "Habit not found" });
     res.json({ id: req.params.id, name });
@@ -230,7 +234,8 @@ app.delete(
   "/api/habits/:id",
   requireAuth,
   wrap(async (req, res) => {
-    const habitId = new ObjectId(req.params.id);
+    const habitId = toObjectId(req.params.id);
+    if (!habitId) return res.status(404).json({ error: "Habit not found" });
     const db = getDb();
 
     const result = await db.collection("habits").deleteOne({ _id: habitId, userId: req.userId });
@@ -270,7 +275,8 @@ app.post(
       return res.status(400).json({ error: "date must be YYYY-MM-DD" });
 
     const db = getDb();
-    const _habitId = new ObjectId(habitId);
+    const _habitId = toObjectId(habitId);
+    if (!_habitId) return res.status(400).json({ error: "Invalid habit id" });
 
     const habit = await db.collection("habits").findOne({ _id: _habitId, userId: req.userId });
     if (!habit) return res.status(404).json({ error: "Habit not found" });
