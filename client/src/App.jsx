@@ -13,11 +13,11 @@ const MOBILE = "(max-width: 640px)";
 // A month of columns doesn't fit on a phone, so show a week there instead.
 // Paging steps by whatever the current window is.
 function useWindowLength() {
-  const [length, setLength] = useState(() => (window.matchMedia(MOBILE).matches ? 7 : 30));
+  const [length, setLength] = useState(() => (window.matchMedia(MOBILE).matches ? 5 : 30));
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE);
-    const sync = () => setLength(mq.matches ? 7 : 30);
+    const sync = () => setLength(mq.matches ? 5 : 30);
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);

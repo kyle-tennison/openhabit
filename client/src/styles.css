@@ -293,7 +293,7 @@ input {
 
 .grid-row {
   display: grid;
-  grid-template-columns: 12rem repeat(var(--days), 1fr);
+  grid-template-columns: minmax(6rem, 1fr) repeat(var(--days), 22px);
   gap: 3px;
   align-items: center;
 }
@@ -594,7 +594,7 @@ input {
   }
 
   .grid-row {
-    grid-template-columns: 6.5rem repeat(var(--days), 1fr);
+    grid-template-columns: minmax(5rem, 1fr) repeat(var(--days), 30px);
     gap: 2px;
   }
   .grid-row + .grid-row {
