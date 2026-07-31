@@ -74,3 +74,26 @@ export const registerLimit = rateLimit({
   key: (req) => `register:ip:${clientIp(req)}`,
   message: "Too many accounts created from here. Try again later.",
 });
+
+// Each request sends an email, so keep these tight — otherwise the endpoint is a
+// free way to spam someone's inbox and burn the Resend quota.
+export const forgotIpLimit = rateLimit({
+  windowMs: 60 * 60_000,
+  max: 10,
+  key: (req) => `forgot:ip:${clientIp(req)}`,
+  message: "Too many reset requests. Try again later.",
+});
+
+export const forgotEmailLimit = rateLimit({
+  windowMs: 60 * 60_000,
+  max: 3,
+  key: (req) => (emailOf(req) ? `forgot:email:${emailOf(req)}` : null),
+  message: "Too many reset requests for this account. Try again later.",
+});
+
+export const resetLimit = rateLimit({
+  windowMs: 15 * 60_000,
+  max: 10,
+  key: (req) => `reset:ip:${clientIp(req)}`,
+  message: "Too many attempts. Try again in a few minutes.",
+});

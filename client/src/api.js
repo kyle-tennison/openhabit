@@ -27,6 +27,8 @@ export const api = {
   register: (email, password) => request("POST", "/auth/register", { email, password }),
   login: (email, password) => request("POST", "/auth/login", { email, password }),
   me: () => request("GET", "/auth/me"),
+  forgot: (email) => request("POST", "/auth/forgot", { email }),
+  reset: (token, password) => request("POST", "/auth/reset", { token, password }),
 
   listHabits: () => request("GET", "/habits"),
   addHabit: (name) => request("POST", "/habits", { name }),

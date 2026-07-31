@@ -20,6 +20,10 @@ export async function connect() {
     .collection("moods")
     .createIndex({ userId: 1, date: 1 }, { unique: true });
 
+  await db.collection("resets").createIndex({ tokenHash: 1 }, { unique: true });
+  // Mongo removes reset tokens on its own once they expire.
+  await db.collection("resets").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
   return db;
 }
 

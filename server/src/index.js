@@ -2,10 +2,19 @@ import "./env.js";
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import { ObjectId } from "mongodb";
 import { connect, getDb } from "./db.js";
 import { signToken, requireAuth } from "./auth.js";
-import { loginIpLimit, loginEmailLimit, registerLimit } from "./rateLimit.js";
+import {
+  loginIpLimit,
+  loginEmailLimit,
+  registerLimit,
+  forgotIpLimit,
+  forgotEmailLimit,
+  resetLimit,
+} from "./rateLimit.js";
+import { sendPasswordReset, mailConfigured } from "./email.js";
 
 const MAX_HABITS = 100;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -72,6 +81,88 @@ app.post(
 );
 
 app.get("/api/auth/me", requireAuth, (req, res) => res.json({ email: req.email }));
+
+/* ----------------------------- password reset ----------------------------- */
+
+const RESET_TTL_MS = 60 * 60_000;
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+
+app.post(
+  "/api/auth/forgot",
+  forgotIpLimit,
+  forgotEmailLimit,
+  wrap(async (req, res) => {
+    const email = String(req.body.email || "")
+      .trim()
+      .toLowerCase();
+
+    // Always the same reply, whether or not the account exists — otherwise this
+    // endpoint tells an attacker which emails are registered.
+    const generic = { ok: true };
+
+    if (!email.includes("@")) return res.json(generic);
+    if (!mailConfigured()) {
+      console.error("Password reset requested but RESEND_API_KEY is not set");
+      return res.json(generic);
+    }
+
+    const db = getDb();
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.json(generic);
+
+    // Only the hash is stored, so a database leak can't be used to reset accounts.
+    const token = crypto.randomBytes(32).toString("base64url");
+    await db.collection("resets").insertOne({
+      userId: user._id,
+      tokenHash: hashToken(token),
+      expiresAt: new Date(Date.now() + RESET_TTL_MS),
+      createdAt: new Date(),
+    });
+
+    const base = (process.env.APP_URL || "https://openhabit.co").replace(/\/$/, "");
+    try {
+      await sendPasswordReset(user.email, `${base}/reset?token=${token}`);
+    } catch (err) {
+      // Don't leak delivery failures to the caller; they'd reveal the account exists.
+      console.error("Failed to send reset email:", err.message);
+    }
+
+    res.json(generic);
+  })
+);
+
+app.post(
+  "/api/auth/reset",
+  resetLimit,
+  wrap(async (req, res) => {
+    const token = String(req.body.token || "");
+    const password = String(req.body.password || "");
+
+    if (password.length < 8)
+      return res.status(400).json({ error: "Password must be at least 8 characters" });
+
+    const db = getDb();
+    const invalid = { error: "That reset link is invalid or has expired" };
+
+    // Single use: delete on claim, so a replayed link finds nothing.
+    const reset = await db.collection("resets").findOneAndDelete({ tokenHash: hashToken(token) });
+    if (!reset) return res.status(400).json(invalid);
+    if (reset.expiresAt <= new Date()) return res.status(400).json(invalid);
+
+    const user = await db.collection("users").findOne({ _id: reset.userId });
+    if (!user) return res.status(400).json(invalid);
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await db
+      .collection("users")
+      .updateOne({ _id: user._id }, { $set: { passwordHash, passwordChangedAt: new Date() } });
+
+    // Any other outstanding links for this account are now void.
+    await db.collection("resets").deleteMany({ userId: user._id });
+
+    res.json({ token: signToken(user), email: user.email });
+  })
+);
 
 /* --------------------------------- habits --------------------------------- */
 

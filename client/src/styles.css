@@ -167,6 +167,19 @@ input {
   font-size: 0.9rem;
 }
 
+.auth-notice {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.auth-alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .auth-links {
   display: flex;
   align-items: center;
