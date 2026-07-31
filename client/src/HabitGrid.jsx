@@ -4,6 +4,7 @@ export default function HabitGrid({
   days,
   habits,
   checks,
+  moods,
   maxHabits,
   onToggle,
   onRename,
@@ -27,9 +28,6 @@ export default function HabitGrid({
     <section className="panel">
       <header className="panel-head">
         <h2>Habits</h2>
-        <span className="count">
-          {habits.length} / {maxHabits}
-        </span>
       </header>
 
       <div className="grid-scroll">
@@ -92,10 +90,27 @@ export default function HabitGrid({
           {habits.length === 0 && (
             <p className="empty">Nothing tracked yet — add your first habit below.</p>
           )}
+
+          {!adding && (
+            <div className="grid-row grid-foot">
+              <div className="cell-name">
+                <button
+                  type="button"
+                  className="add-toggle"
+                  aria-label="Add a habit"
+                  disabled={atLimit}
+                  onClick={() => setAdding(true)}
+                >
+                  <i className="bi bi-plus" aria-hidden="true"></i>
+                </button>
+              </div>
+              {habits.length > 0 && <MoodSpark days={days} moods={moods} />}
+            </div>
+          )}
         </div>
       </div>
 
-      {adding ? (
+      {adding && (
         <form className="add-habit" onSubmit={submitNew}>
           <input
             value={draft}
@@ -115,17 +130,41 @@ export default function HabitGrid({
             Add
           </button>
         </form>
-      ) : (
-        <button
-          type="button"
-          className="add-toggle"
-          aria-label="Add a habit"
-          disabled={atLimit}
-          onClick={() => setAdding(true)}
-        >
-          <i className="bi bi-plus" aria-hidden="true"></i>
-        </button>
       )}
     </section>
+  );
+}
+
+function MoodSpark({ days, moods }) {
+  const W = days.length * 100;
+  const x = (i) => i * 100 + 50;
+  const y = (v) => 8 + ((10 - v) / 9) * 84;
+
+  const points = days
+    .map((d, i) => ({ i, value: moods.get(d.key) }))
+    .filter((p) => p.value != null);
+
+  const segments = [];
+  for (const p of points) {
+    const last = segments[segments.length - 1];
+    if (last && last[last.length - 1].i === p.i - 1) last.push(p);
+    else segments.push([p]);
+  }
+
+  return (
+    <svg
+      className="mood-spark"
+      viewBox={`0 0 ${W} 100`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {segments.map((seg, idx) => (
+        <polyline
+          key={idx}
+          vectorEffect="non-scaling-stroke"
+          points={seg.map((p) => `${x(p.i)},${y(p.value)}`).join(" ")}
+        />
+      ))}
+    </svg>
   );
 }

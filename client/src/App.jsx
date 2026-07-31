@@ -209,6 +209,7 @@ export default function App() {
         days={days}
         habits={habits}
         checks={checks}
+        moods={moods}
         maxHabits={MAX_HABITS}
         onToggle={toggleCheck}
         onRename={renameHabit}
