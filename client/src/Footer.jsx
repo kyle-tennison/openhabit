@@ -1,3 +1,5 @@
+import {VERSION} from "./version"
+
 export const DONATE_URL =
   "https://www.paypal.com/donate/?business=54HEQEQEAT2M8&no_recurring=0&item_name=Help+pay+for+openhabit+hosting+to+keep+it+free+and+witout+ads.&currency_code=USD";
 
@@ -18,6 +20,7 @@ export default function Footer() {
         Source on GitHub
       </a>
       <a href={`mailto:${SUPPORT_EMAIL}?subject=openhabit%20issue`}>Report an issue</a>
+      <span>v{VERSION}</span>
     </footer>
   );
 }
