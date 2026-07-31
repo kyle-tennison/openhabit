@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy OpenHabit to the Lightsail box.
+# Deploy openhabit to the Lightsail box.
 #
 #   ./deploy.sh
 #

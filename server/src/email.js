@@ -13,15 +13,15 @@ export async function sendPasswordReset(to, resetUrl) {
     from,
     to,
     replyTo,
-    subject: "Reset your OpenHabit password",
+    subject: "Reset your openhabit password",
     text:
-      `Someone asked to reset the password for your OpenHabit account.\n\n` +
+      `Someone asked to reset the password for your openhabit account.\n\n` +
       `${resetUrl}\n\n` +
       `The link works once and expires in an hour. ` +
       `If this wasn't you, ignore this email — nothing has changed.`,
     html: `
       <div style="font-family:Roboto,Helvetica,Arial,sans-serif;color:#26332a;line-height:1.5">
-        <p>Someone asked to reset the password for your OpenHabit account.</p>
+        <p>Someone asked to reset the password for your openhabit account.</p>
         <p>
           <a href="${resetUrl}"
              style="display:inline-block;background:#4f7d55;color:#fff;text-decoration:none;

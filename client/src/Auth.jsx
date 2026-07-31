@@ -77,7 +77,7 @@ export default function Auth({ onSignedIn }) {
     <div className="auth-page">
       <form className="auth-card" onSubmit={submit}>
         <Logo size={52} />
-        <h1 className="wordmark">OpenHabit</h1>
+        <h1 className="wordmark">openhabit</h1>
         <p className="auth-tagline">{heading}</p>
 
         {!isReset && (
@@ -156,7 +156,7 @@ export default function Auth({ onSignedIn }) {
             <i className="bi bi-github" aria-hidden="true"></i>
             GitHub
           </a>
-          <a href={`mailto:${SUPPORT_EMAIL}?subject=OpenHabit%20issue`}>Contact</a>
+          <a href={`mailto:${SUPPORT_EMAIL}?subject=openhabit%20issue`}>Contact</a>
         </div>
       </form>
     </div>

@@ -362,7 +362,7 @@ const port = process.env.PORT || 4000;
 const host = process.env.HOST || "127.0.0.1";
 connect()
   .then(() => {
-    app.listen(port, host, () => console.log(`OpenHabit BFF listening on ${host}:${port}`));
+    app.listen(port, host, () => console.log(`openhabit BFF listening on ${host}:${port}`));
   })
   .catch((err) => {
     console.error("Failed to connect to MongoDB:", err.message);

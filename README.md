@@ -2,13 +2,13 @@
   <img src="client/public/logo.png" width="72" alt="">
 </p>
 
-<h1 align="center">OpenHabit</h1>
+<h1 align="center">openhabit</h1>
 
 Habit and mood tracking. React + Vite frontend, thin Express BFF, MongoDB Atlas.
 Live at [openhabit.co](https://openhabit.co).
 
 Open source, free, and ad-free — no trackers, no upsells, nothing sold on. Hosting
-is paid for by [donations](https://www.paypal.com/donate/?business=54HEQEQEAT2M8&no_recurring=0&item_name=Help+pay+for+OpenHabit+hosting+to+keep+it+free+and+witout+ads.&currency_code=USD).
+is paid for by [donations](https://www.paypal.com/donate/?business=54HEQEQEAT2M8&no_recurring=0&item_name=Help+pay+for+openhabit+hosting+to+keep+it+free+and+witout+ads.&currency_code=USD).
 Everything needed to self-host is in this repo.
 
 Issues and bug reports: [support@openhabit.co](mailto:support@openhabit.co).

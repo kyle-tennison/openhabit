@@ -78,7 +78,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
         <h2>Mood</h2>
         <div className="mood-tools">
           <span className="hint">
-            {erasing ? "Tap a day to clear it" : "Click or drag to rate a day · shift-click to clear"}
+            {erasing ? "Tap a day to clear it" : "Click or drag to rate a day"}
           </span>
           <button
             type="button"
@@ -86,7 +86,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
             aria-pressed={erasing}
             onClick={() => setErasing((on) => !on)}
           >
-            {erasing ? "Done" : "Erase"}
+            {erasing ? "Done" : "Erase Day"}
           </button>
         </div>
       </header>
@@ -146,7 +146,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
             }`}
             cx={x(p.i)}
             cy={y(p.value)}
-            r={p.isToday ? 9 : 7.5}
+            r={p.isToday ? 7 : 6}
           />
         ))}
 

@@ -161,7 +161,7 @@ export default function App() {
 
   /* --------------------------------- views -------------------------------- */
 
-  if (booting) return <div className="booting">OpenHabit</div>;
+  if (booting) return <div className="booting">openhabit</div>;
   if (!email) return <Auth onSignedIn={setEmail} />;
 
   const atToday = endKey === todayKey();
@@ -171,7 +171,7 @@ export default function App() {
       <header className="app-head">
         <div className="brand">
           <Logo size={30} />
-          <h1 className="wordmark">OpenHabit</h1>
+          <h1 className="wordmark">openhabit</h1>
         </div>
         <div className="who">
           <span>{email}</span>

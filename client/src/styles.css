@@ -48,7 +48,7 @@ input {
 }
 
 /* Flexbox centres the tile on the wordmark's line box, which lands on the cap
-   height. The descender in "OpenHabit" pulls the text's visual mass lower, so
+   height. The descender in "openhabit" pulls the text's visual mass lower, so
    the tile reads high — nudge it to sit between cap-centre and ink-centre. */
 .brand .logo {
   position: relative;
@@ -454,7 +454,7 @@ input {
   user-select: none;
 }
 .mood-chart.erasing {
-  cursor: not-allowed;
+  /* cursor: not-allowed; */
 }
 
 .grid-line {
@@ -483,7 +483,7 @@ input {
 .mood-line {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 3.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -492,6 +492,7 @@ input {
   fill: var(--accent);
   stroke: var(--paper-2);
   stroke-width: 2.5;
+  cursor: pointer;
 }
 .mood-point.is-today {
   fill: #fffdf9;
@@ -647,7 +648,7 @@ input {
   .auth-card input,
   .add-habit input,
   .habit-name {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .auth-links {
