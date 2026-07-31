@@ -7,7 +7,7 @@ import MoodChart from "./MoodChart.jsx";
 import Footer from "./Footer.jsx";
 import Logo from "./Logo.jsx";
 
-const MAX_HABITS = 100;
+const MAX_HABITS = 500;
 const MOBILE = "(max-width: 640px)";
 
 // A month of columns doesn't fit on a phone, so show a week there instead.

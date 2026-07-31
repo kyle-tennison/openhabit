@@ -16,7 +16,7 @@ import {
 } from "./rateLimit.js";
 import { sendPasswordReset, mailConfigured } from "./email.js";
 
-const MAX_HABITS = 100;
+const MAX_HABITS = 500;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const isProduction = process.env.NODE_ENV === "production";
 

@@ -41,7 +41,7 @@ client/     React + Vite. Never talks to Mongo directly.
 - **Auth** — email + password, bcrypt-hashed. Client holds a 30-day JWT in
   `localStorage`; every route but register/login requires it, and every query is
   scoped to the token's user id.
-- **Habits** — up to 100. A 30-day grid, one row per habit. Click a cell to toggle,
+- **Habits** — up to 500. A 30-day grid, one row per habit. Click a cell to toggle,
   the name to rename, `×` to delete. `‹` `›` page back through earlier windows.
 - **Mood** — 1–10 over the same 30 days. Click to set, drag to adjust, shift-click to
   clear. The line breaks across unrated days instead of interpolating.
