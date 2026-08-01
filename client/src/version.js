@@ -1,2 +1,2 @@
 // Update this file to bump version
-export const VERSION = "1.2";
+export const VERSION = "1.3";
