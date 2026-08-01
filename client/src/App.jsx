@@ -90,7 +90,42 @@ export default function App() {
 
   /* ------------------------------- mutations ------------------------------ */
 
-  function toggleCheck(habitId, date) {
+  /* --------------------------- undo / redo stack -------------------------- */
+  // Session-only: entries describe a change and how to reverse it. Habit
+  // add/rename/delete are deliberately excluded — this is for stray taps.
+
+  const [past, setPast] = useState([]);
+  const [future, setFuture] = useState([]);
+
+  function record(entry) {
+    setPast((p) => [...p, entry]);
+    setFuture([]);
+  }
+
+  function applyEntry(entry, direction) {
+    if (entry.type === "toggle") applyToggle(entry.habitId, entry.date);
+    else applyMood(entry.date, direction === "undo" ? entry.before : entry.after);
+  }
+
+  function undo() {
+    if (!past.length) return;
+    const entry = past[past.length - 1];
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [...f, entry]);
+    applyEntry(entry, "undo");
+  }
+
+  function redo() {
+    if (!future.length) return;
+    const entry = future[future.length - 1];
+    setFuture((f) => f.slice(0, -1));
+    setPast((p) => [...p, entry]);
+    applyEntry(entry, "redo");
+  }
+
+  /* ------------------------------- mutations ------------------------------ */
+
+  function applyToggle(habitId, date) {
     const key = `${habitId}|${date}`;
     setChecks((prev) => {
       const next = new Set(prev);
@@ -106,6 +141,11 @@ export default function App() {
       });
       fail(err);
     });
+  }
+
+  function toggleCheck(habitId, date) {
+    record({ type: "toggle", habitId, date });
+    applyToggle(habitId, date);
   }
 
   function addHabit(name) {
@@ -137,26 +177,30 @@ export default function App() {
     api.deleteHabit(habit.id).catch(fail);
   }
 
-  function setMood(date, value) {
-    const before = moods;
-    setMoods((prev) => new Map(prev).set(date, value));
-    api.setMood(date, value).catch((err) => {
-      setMoods(before);
+  function applyMood(date, value) {
+    const snapshot = moods;
+    setMoods((prev) => {
+      const next = new Map(prev);
+      if (value == null) next.delete(date);
+      else next.set(date, value);
+      return next;
+    });
+
+    const request = value == null ? api.clearMood(date) : api.setMood(date, value);
+    request.catch((err) => {
+      setMoods(snapshot);
       fail(err);
     });
   }
 
+  function setMood(date, value) {
+    record({ type: "mood", date, before: moods.get(date) ?? null, after: value });
+    applyMood(date, value);
+  }
+
   function clearMood(date) {
-    const before = moods;
-    setMoods((prev) => {
-      const next = new Map(prev);
-      next.delete(date);
-      return next;
-    });
-    api.clearMood(date).catch((err) => {
-      setMoods(before);
-      fail(err);
-    });
+    record({ type: "mood", date, before: moods.get(date) ?? null, after: null });
+    applyMood(date, null);
   }
 
   /* --------------------------------- views -------------------------------- */
@@ -201,6 +245,27 @@ export default function App() {
             Back to today
           </button>
         )}
+
+        <div className="history">
+          <button
+            className="ghost ghost-noborder"
+            onClick={undo}
+            disabled={!past.length}
+            aria-label="Undo"
+            title="Undo"
+          >
+            <i className="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+          </button>
+          <button
+            className="ghost ghost-noborder"
+            onClick={redo}
+            disabled={!future.length}
+            aria-label="Redo"
+            title="Redo"
+          >
+            <i className="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
 
       {notice && <div className="notice">{notice}</div>}

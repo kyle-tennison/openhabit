@@ -11,6 +11,20 @@ const MAX = 10;
 
 const plotW = VB_W - PAD.left - PAD.right;
 
+function useIsMobile() {
+  const q = "(max-width: 640px)";
+  const [is, setIs] = useState(() => window.matchMedia(q).matches);
+
+  useEffect(() => {
+    const mq = window.matchMedia(q);
+    const sync = () => setIs(mq.matches);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return is;
+}
+
 function useViewBoxHeight() {
   const q = "(max-width: 640px)";
   const [h, setH] = useState(() => (window.matchMedia(q).matches ? VB_H_MOBILE : VB_H_DESKTOP));
@@ -31,6 +45,12 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
   // Shift-click clears a day, but there's no shift on a touch screen — so an
   // explicit mode makes clearing reachable there.
   const [erasing, setErasing] = useState(false);
+
+  // On a phone the chart sits under the thumb while scrolling, so it starts
+  // locked and has to be unlocked deliberately. Desktop is always editable.
+  const isMobile = useIsMobile();
+  const [unlocked, setUnlocked] = useState(false);
+  const readOnly = isMobile && !unlocked;
 
   const VB_H = useViewBoxHeight();
   const plotH = VB_H - PAD.top - PAD.bottom;
@@ -67,6 +87,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
   }
 
   function handlePointerDown(event) {
+    if (readOnly) return;
     const { day, value } = locate(event);
     if (day.isFuture) return;
 
@@ -97,10 +118,31 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
         <h2>Mood</h2>
         <div className="mood-tools">
           <span className="hint">
-            {erasing ? "Tap a day to clear it" : "Click or drag to rate a day"}
+            {readOnly
+              ? "Unlock to edit"
+              : erasing
+                ? "Tap a day to clear it"
+                : "Click or drag to rate a day"}
           </span>
+          {isMobile && (
+            <button
+              type="button"
+              className={`mood-lock${unlocked ? "" : " on"}`}
+              aria-pressed={unlocked}
+              onClick={() => {
+                setUnlocked((on) => !on);
+                setErasing(false);
+              }}
+            >
+              <i
+                className={`bi bi-${unlocked ? "unlock" : "lock-fill"}`}
+                aria-hidden="true"
+              ></i>
+            </button>
+          )}
           <button
             type="button"
+            disabled={readOnly}
             className={`erase${erasing ? " on" : ""}`}
             aria-pressed={erasing}
             onClick={() => setErasing((on) => !on)}
@@ -112,7 +154,7 @@ export default function MoodChart({ days, moods, onSet, onClear }) {
 
       <svg
         ref={svgRef}
-        className={`mood-chart${erasing ? " erasing" : ""}`}
+        className={`mood-chart${erasing ? " erasing" : ""}${readOnly ? " locked" : ""}`}
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         role="img"
         aria-label="Mood over the last 30 days"

@@ -111,6 +111,7 @@ input {
   height: 2rem;
   line-height: 1;
   cursor: pointer;
+  transition: 0.12s ease;
 }
 .ghost:hover:not(:disabled) {
   border-color: var(--accent-soft);
@@ -118,6 +119,10 @@ input {
 .ghost:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.ghost-noborder {
+  border: none
 }
 
 /* ---------------------------------- auth ---------------------------------- */
@@ -278,6 +283,13 @@ input {
 .hint {
   color: var(--ink-soft);
   font-size: 0.82rem;
+}
+
+.history {
+  justify-self: flex-end;
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
 }
 
 /* ---------------------------------- grid ---------------------------------- */
@@ -498,8 +510,9 @@ input {
   cursor: crosshair;
   user-select: none;
 }
-.mood-chart.erasing {
-  /* cursor: not-allowed; */
+
+.mood-chart.locked {
+  opacity: 50%;
 }
 
 .grid-line {
@@ -547,6 +560,19 @@ input {
 .mood-point.is-dragging {
   fill: var(--danger);
   stroke: var(--paper-2);
+}
+
+.mood-lock {
+  font-size: 12px;
+  color: var(--ink-soft);
+  background-color: var(--paper-2);
+  border: 1px solid var(--line);
+  padding: 4px 7px;
+  border-radius: 12px;
+}
+
+.mood-lock.on {
+  background-color: color-mix(in srgb, var(--ink-soft) 10%, white 90%);
 }
 
 /* --------------------------------- footer --------------------------------- */
