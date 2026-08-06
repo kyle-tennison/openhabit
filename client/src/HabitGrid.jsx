@@ -5,6 +5,7 @@ export default function HabitGrid({
   habits,
   checks,
   moods,
+  loading,
   maxHabits,
   onToggle,
   onRename,
@@ -47,65 +48,73 @@ export default function HabitGrid({
             ))}
           </div>
 
-          {habits.map((habit) => (
-            <div className="grid-row" key={habit.id}>
-              <div className="cell-name">
-                <input
-                  className="habit-name"
-                  defaultValue={habit.name}
-                  onBlur={(e) => {
-                    const name = e.target.value.trim();
-                    if (name && name !== habit.name) onRename(habit.id, name);
-                    else e.target.value = habit.name;
-                  }}
-                  onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-                />
-                <button
-                  className="delete"
-                  title={`Delete “${habit.name}”`}
-                  onClick={() => onDelete(habit)}
-                >
-                  ×
-                </button>
-              </div>
-
-              {days.map((d) => {
-                const on = checks.has(`${habit.id}|${d.key}`);
-                return (
-                  <button
-                    key={d.key}
-                    className={`cell${on ? " on" : ""}${d.isToday ? " is-today" : ""}${
-                      d.isWeekend ? " is-weekend" : ""
-                    }`}
-                    disabled={d.isFuture}
-                    aria-pressed={on}
-                    aria-label={`${habit.name} on ${d.key}`}
-                    onClick={() => onToggle(habit.id, d.key)}
+          {loading ? (
+            <div className="grid-loading">
+              <span className="spinner" role="status" aria-label="Loading habits" />
+            </div>
+          ) : (
+            <>
+            {habits.map((habit) => (
+              <div className="grid-row" key={habit.id}>
+                <div className="cell-name">
+                  <input
+                    className="habit-name"
+                    defaultValue={habit.name}
+                    onBlur={(e) => {
+                      const name = e.target.value.trim();
+                      if (name && name !== habit.name) onRename(habit.id, name);
+                      else e.target.value = habit.name;
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
                   />
-                );
-              })}
-            </div>
-          ))}
+                  <button
+                    className="delete"
+                    title={`Delete “${habit.name}”`}
+                    onClick={() => onDelete(habit)}
+                  >
+                    ×
+                  </button>
+                </div>
 
-          {habits.length === 0 && (
-            <p className="empty">Nothing tracked yet — add your first habit below.</p>
-          )}
-
-          {!adding && (
-            <div className="grid-row grid-foot">
-              <div className="cell-name">
-                <button
-                  type="button"
-                  className="add-toggle"
-                  aria-label="Add a habit"
-                  disabled={atLimit}
-                  onClick={() => setAdding(true)}
-                >
-                  <i className="bi bi-plus" aria-hidden="true"></i>
-                </button>
+                {days.map((d) => {
+                  const on = checks.has(`${habit.id}|${d.key}`);
+                  return (
+                    <button
+                      key={d.key}
+                      className={`cell${on ? " on" : ""}${d.isToday ? " is-today" : ""}${
+                        d.isWeekend ? " is-weekend" : ""
+                      }`}
+                      disabled={d.isFuture}
+                      aria-pressed={on}
+                      aria-label={`${habit.name} on ${d.key}`}
+                      onClick={() => onToggle(habit.id, d.key)}
+                    />
+                  );
+                })}
               </div>
-              {habits.length > 0 && <MoodSpark days={days} moods={moods} />}
-            </div>
+            ))}
+
+            {habits.length === 0 && (
+              <p className="empty">Nothing tracked yet — add your first habit below.</p>
+            )}
+
+            {!adding && (
+              <div className="grid-row grid-foot">
+                <div className="cell-name">
+                  <button
+                    type="button"
+                    className="add-toggle"
+                    aria-label="Add a habit"
+                    disabled={atLimit}
+                    onClick={() => setAdding(true)}
+                  >
+                    <i className="bi bi-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+                {habits.length > 0 && <MoodSpark days={days} moods={moods} />}
+              </div>
+            )}
+            </>
           )}
         </div>
       </div>

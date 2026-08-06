@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, getToken, clearToken } from "./api.js";
 import { addDays, rangeLabel, todayKey, windowDays } from "./dates.js";
 import Auth from "./Auth.jsx";
@@ -34,6 +34,8 @@ export default function App() {
   const [checks, setChecks] = useState(new Set());
   const [moods, setMoods] = useState(new Map());
   const [notice, setNotice] = useState("");
+  // Only gates the first load — paging between windows keeps the grid on screen.
+  const [loaded, setLoaded] = useState(false);
 
   const WINDOW = useWindowLength();
   const days = useMemo(() => windowDays(endKey, WINDOW), [endKey, WINDOW]);
@@ -45,6 +47,7 @@ export default function App() {
     setHabits([]);
     setChecks(new Set());
     setMoods(new Map());
+    setLoaded(false);
   }, []);
 
   const fail = useCallback(
@@ -64,23 +67,53 @@ export default function App() {
       .finally(() => setBooting(false));
   }, []);
 
-  useEffect(() => {
+  // Guards against a slow response landing after the user has already paged to
+  // a different window: only the most recent request is allowed to apply.
+  const requestRef = useRef(0);
+  const lastFetchRef = useRef(0);
+
+  const loadWindow = useCallback(() => {
     if (!email) return;
-    let cancelled = false;
+
+    const id = ++requestRef.current;
+    lastFetchRef.current = Date.now();
 
     Promise.all([api.listHabits(), api.listChecks(startKey, endKey), api.listMoods(startKey, endKey)])
       .then(([habitList, checkList, moodList]) => {
-        if (cancelled) return;
+        if (id !== requestRef.current) return;
         setHabits(habitList);
         setChecks(new Set(checkList.map((c) => `${c.habitId}|${c.date}`)));
         setMoods(new Map(moodList.map((m) => [m.date, m.value])));
       })
-      .catch(fail);
-
-    return () => {
-      cancelled = true;
-    };
+      .catch(fail)
+      .finally(() => {
+        if (id === requestRef.current) setLoaded(true);
+      });
   }, [email, startKey, endKey, fail]);
+
+  useEffect(() => {
+    loadWindow();
+  }, [loadWindow]);
+
+  // Another device may have changed things while this tab sat in the background,
+  // so re-read when it comes back to the front. Throttled so rapid tab switching
+  // doesn't turn into a burst of requests.
+  useEffect(() => {
+    const REFETCH_AFTER_MS = 5000;
+
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastFetchRef.current < REFETCH_AFTER_MS) return;
+      loadWindow();
+    };
+
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [loadWindow]);
 
   useEffect(() => {
     if (!notice) return;
@@ -103,7 +136,8 @@ export default function App() {
   }
 
   function applyEntry(entry, direction) {
-    if (entry.type === "toggle") applyToggle(entry.habitId, entry.date);
+    if (entry.type === "check")
+      applyCheck(entry.habitId, entry.date, direction === "undo" ? entry.before : entry.after);
     else applyMood(entry.date, direction === "undo" ? entry.before : entry.after);
   }
 
@@ -125,27 +159,29 @@ export default function App() {
 
   /* ------------------------------- mutations ------------------------------ */
 
-  function applyToggle(habitId, date) {
+  function applyCheck(habitId, date, checked) {
     const key = `${habitId}|${date}`;
+    const snapshot = checks;
+
     setChecks((prev) => {
       const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
+      if (checked) next.add(key);
+      else next.delete(key);
       return next;
     });
 
-    api.toggleCheck(habitId, date).catch((err) => {
-      setChecks((prev) => {
-        const next = new Set(prev);
-        next.has(key) ? next.delete(key) : next.add(key);
-        return next;
-      });
+    api.setCheck(habitId, date, checked).catch((err) => {
+      setChecks(snapshot);
       fail(err);
     });
   }
 
+  // Sends the state the user asked for rather than "flip whatever you have", so
+  // a stale tab converges instead of writing the opposite value.
   function toggleCheck(habitId, date) {
-    record({ type: "toggle", habitId, date });
-    applyToggle(habitId, date);
+    const checked = !checks.has(`${habitId}|${date}`);
+    record({ type: "check", habitId, date, before: !checked, after: checked });
+    applyCheck(habitId, date, checked);
   }
 
   function addHabit(name) {
@@ -275,6 +311,7 @@ export default function App() {
         habits={habits}
         checks={checks}
         moods={moods}
+        loading={!loaded}
         maxHabits={MAX_HABITS}
         onToggle={toggleCheck}
         onRename={renameHabit}

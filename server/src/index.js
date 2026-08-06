@@ -265,6 +265,39 @@ app.get(
   })
 );
 
+// Set a cell to an explicit state. Idempotent, so a client working from stale
+// data can't invert the value the way a blind toggle would.
+app.put(
+  "/api/checks",
+  requireAuth,
+  wrap(async (req, res) => {
+    const { habitId, date } = req.body;
+    const checked = req.body.checked === true;
+
+    if (!DATE_RE.test(date || ""))
+      return res.status(400).json({ error: "date must be YYYY-MM-DD" });
+
+    const db = getDb();
+    const _habitId = toObjectId(habitId);
+    if (!_habitId) return res.status(400).json({ error: "Invalid habit id" });
+
+    const habit = await db.collection("habits").findOne({ _id: _habitId, userId: req.userId });
+    if (!habit) return res.status(404).json({ error: "Habit not found" });
+
+    const filter = { userId: req.userId, habitId: _habitId, date };
+    if (checked) {
+      await db
+        .collection("checks")
+        .updateOne(filter, { $setOnInsert: { ...filter, createdAt: new Date() } }, { upsert: true });
+    } else {
+      await db.collection("checks").deleteOne(filter);
+    }
+
+    res.json({ habitId, date, checked });
+  })
+);
+
+// Kept so an already-open tab running the previous build keeps working.
 // Toggle a single habit/day cell. Returns the resulting state.
 app.post(
   "/api/checks/toggle",

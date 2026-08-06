@@ -36,7 +36,7 @@ export const api = {
   deleteHabit: (id) => request("DELETE", `/habits/${id}`),
 
   listChecks: (start, end) => request("GET", `/checks?start=${start}&end=${end}`),
-  toggleCheck: (habitId, date) => request("POST", "/checks/toggle", { habitId, date }),
+  setCheck: (habitId, date, checked) => request("PUT", "/checks", { habitId, date, checked }),
 
   listMoods: (start, end) => request("GET", `/moods?start=${start}&end=${end}`),
   setMood: (date, value) => request("PUT", "/moods", { date, value }),

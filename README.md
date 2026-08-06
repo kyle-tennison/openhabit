@@ -67,7 +67,7 @@ local-time `YYYY-MM-DD` strings so a day never shifts across a timezone.
 | GET POST | `/api/habits` |
 | PATCH DELETE | `/api/habits/:id` |
 | GET | `/api/checks?start=&end=` |
-| POST | `/api/checks/toggle` |
+| PUT | `/api/checks` |
 | GET PUT | `/api/moods` |
 | DELETE | `/api/moods/:date` |
 
